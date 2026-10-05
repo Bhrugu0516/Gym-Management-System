@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Gym Management System</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Gym Management System</h1>
+        <p>Manage members, trainers and memberships</p>
+    </header>
+
+    <nav>
+        <a href="#dashboard">Dashboard</a>
+        <a href="#members">Members</a>
+        <a href="#trainers">Trainers</a>
+    </nav>
+
+    <main>
+
+        <!-- Dashboard -->
+        <section id="dashboard" class="dashboard">
+
+            <div class="card">
+                <h3>Total Members</h3>
+                <p id="totalMembers">0</p>
+            </div>
+
+            <div class="card">
+                <h3>Active Members</h3>
+                <p id="activeMembers">0</p>
+            </div>
+
+            <div class="card">
+                <h3>Total Trainers</h3>
+                <p id="totalTrainers">0</p>
+            </div>
+
+        </section>
+
+
+        <!-- Members -->
+        <section id="members">
+
+            <h2>Member Management</h2>
+
+            <div class="form-container">
+
+                <input
+                    type="text"
+                    id="memberId"
+                    placeholder="Member ID"
+                >
+
+                <input
+                    type="text"
+                    id="memberName"
+                    placeholder="Member Name"
+                >
+
+                <select id="membershipType">
+                    <option value="Monthly">Monthly</option>
+                    <option value="Quarterly">Quarterly</option>
+                    <option value="Yearly">Yearly</option>
+                </select>
+
+                <button onclick="addMember()">
+                    Add Member
+                </button>
+
+            </div>
+
+            <div id="memberList"></div>
+
+        </section>
+
+
+        <!-- Trainers -->
+        <section id="trainers">
+
+            <h2>Trainer Management</h2>
+
+            <div class="form-container">
+
+                <input
+                    type="text"
+                    id="trainerId"
+                    placeholder="Trainer ID"
+                >
+
+                <input
+                    type="text"
+                    id="trainerName"
+                    placeholder="Trainer Name"
+                >
+
+                <input
+                    type="text"
+                    id="specialization"
+                    placeholder="Specialization"
+                >
+
+                <button onclick="addTrainer()">
+                    Add Trainer
+                </button>
+
+            </div>
+
+            <div id="trainerList"></div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+        <p>Gym Management System | Lab Session 06</p>
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
