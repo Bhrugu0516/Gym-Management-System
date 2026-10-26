@@ -6,14 +6,22 @@ let trainers = [];
 // MEMBER MANAGEMENT
 // ==============================
 
+function validateMember(id, name) {
+    if (id === "" || name === "") {
+        alert("Please enter Member ID and Member Name.");
+        return false;
+    }
+
+    return true;
+}
+
 function addMember() {
 
     const id = document.getElementById("memberId").value.trim();
     const name = document.getElementById("memberName").value.trim();
     const type = document.getElementById("membershipType").value;
 
-    if (id === "" || name === "") {
-        alert("Please enter Member ID and Member Name.");
+    if (!validateMember(id, name)) {
         return;
     }
 
@@ -32,6 +40,7 @@ function addMember() {
     displayMembers();
     updateDashboard();
 }
+
 
 
 // Display all members
