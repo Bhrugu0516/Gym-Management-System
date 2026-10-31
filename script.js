@@ -1,5 +1,37 @@
-let members = [];
-let trainers = [];
+
+// ==============================
+// DATA STORAGE
+// ==============================
+
+function loadData(key) {
+    try {
+        if (typeof localStorage === "undefined") return [];
+        return JSON.parse(localStorage.getItem(key)) || [];
+    } catch (error) {
+        return [];
+    }
+}
+
+function saveData(key, data) {
+    if (typeof localStorage !== "undefined") {
+        localStorage.setItem(key, JSON.stringify(data));
+    }
+}
+
+let members = loadData("gym_members");
+let trainers = loadData("gym_trainers");
+
+
+// Prevent HTML entered by users from being interpreted as markup
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[character]);
+}
 
 
 // ==============================
@@ -7,8 +39,15 @@ let trainers = [];
 // ==============================
 
 function validateMember(id, name) {
-    if (id === "" || name === "") {
+    if (!id || !name) {
         alert("Please enter Member ID and Member Name.");
+        return false;
+    }
+
+    if (members.some(member =>
+        member.id.toLowerCase() === id.toLowerCase()
+    )) {
+        alert("A member with this ID already exists.");
         return false;
     }
 
@@ -16,23 +55,21 @@ function validateMember(id, name) {
 }
 
 function addMember() {
-
     const id = document.getElementById("memberId").value.trim();
     const name = document.getElementById("memberName").value.trim();
     const type = document.getElementById("membershipType").value;
 
-    if (!validateMember(id, name)) {
-        return;
-    }
+    if (!validateMember(id, name)) return;
 
-    const member = {
-        id: id,
-        name: name,
+    members.push({
+        id,
+        name,
         membershipType: type,
-        active: true
-    };
+        active: true,
+        joinedOn: new Date().toISOString()
+    });
 
-    members.push(member);
+    saveData("gym_members", members);
 
     document.getElementById("memberId").value = "";
     document.getElementById("memberName").value = "";
@@ -41,48 +78,29 @@ function addMember() {
     updateDashboard();
 }
 
-
-
-// Display all members
-
 function displayMembers() {
-
     const list = document.getElementById("memberList");
-
     list.innerHTML = "";
 
     members.forEach((member, index) => {
+        const statusClass = member.active
+            ? "status-active"
+            : "status-inactive";
 
-        const statusClass =
-            member.active
-                ? "status-active"
-                : "status-inactive";
-
-        const statusText =
-            member.active
-                ? "Active"
-                : "Inactive";
+        const statusText = member.active ? "Active" : "Inactive";
 
         list.innerHTML += `
             <div class="member-card">
+                <h3>${escapeHTML(member.name)}</h3>
 
-                <h3>${member.name}</h3>
+                <p><strong>Member ID:</strong>
+                    ${escapeHTML(member.id)}</p>
 
-                <p>
-                    <strong>Member ID:</strong>
-                    ${member.id}
-                </p>
+                <p><strong>Membership:</strong>
+                    ${escapeHTML(member.membershipType)}</p>
 
-                <p>
-                    <strong>Membership:</strong>
-                    ${member.membershipType}
-                </p>
-
-                <p>
-                    <strong>Status:</strong>
-                    <span class="${statusClass}">
-                        ${statusText}
-                    </span>
+                <p><strong>Status:</strong>
+                    <span class="${statusClass}">${statusText}</span>
                 </p>
 
                 <br>
@@ -91,38 +109,32 @@ function displayMembers() {
                     ${member.active ? "Deactivate" : "Activate"}
                 </button>
 
-                <button
-                    class="delete-btn"
+                <button class="delete-btn"
                     onclick="deleteMember(${index})">
                     Delete
                 </button>
-
             </div>
         `;
     });
 }
 
-
-// Activate / deactivate membership
-
 function toggleMembership(index) {
+    if (!members[index]) return;
 
-    members[index].active =
-        !members[index].active;
+    members[index].active = !members[index].active;
 
+    saveData("gym_members", members);
     displayMembers();
     updateDashboard();
 }
 
-
-// Delete member
-
 function deleteMember(index) {
+    if (!members[index]) return;
 
     if (confirm("Are you sure you want to delete this member?")) {
-
         members.splice(index, 1);
 
+        saveData("gym_members", members);
         displayMembers();
         updateDashboard();
     }
@@ -134,32 +146,30 @@ function deleteMember(index) {
 // ==============================
 
 function addTrainer() {
-
-    const id =
-        document.getElementById("trainerId").value.trim();
-
-    const name =
-        document.getElementById("trainerName").value.trim();
-
+    const id = document.getElementById("trainerId").value.trim();
+    const name = document.getElementById("trainerName").value.trim();
     const specialization =
         document.getElementById("specialization").value.trim();
 
-    if (id === "" || name === "" || specialization === "") {
-
+    if (!id || !name || !specialization) {
         alert("Please enter all trainer details.");
-
         return;
     }
 
-    const trainer = {
+    if (trainers.some(trainer =>
+        trainer.id.toLowerCase() === id.toLowerCase()
+    )) {
+        alert("A trainer with this ID already exists.");
+        return;
+    }
 
-        id: id,
-        name: name,
-        specialization: specialization
+    trainers.push({
+        id,
+        name,
+        specialization
+    });
 
-    };
-
-    trainers.push(trainer);
+    saveData("gym_trainers", trainers);
 
     document.getElementById("trainerId").value = "";
     document.getElementById("trainerName").value = "";
@@ -169,56 +179,39 @@ function addTrainer() {
     updateDashboard();
 }
 
-
-// Display trainers
-
 function displayTrainers() {
-
-    const list =
-        document.getElementById("trainerList");
-
+    const list = document.getElementById("trainerList");
     list.innerHTML = "";
 
     trainers.forEach((trainer, index) => {
-
         list.innerHTML += `
-
             <div class="trainer-card">
+                <h3>${escapeHTML(trainer.name)}</h3>
 
-                <h3>${trainer.name}</h3>
+                <p><strong>Trainer ID:</strong>
+                    ${escapeHTML(trainer.id)}</p>
 
-                <p>
-                    <strong>Trainer ID:</strong>
-                    ${trainer.id}
-                </p>
-
-                <p>
-                    <strong>Specialization:</strong>
-                    ${trainer.specialization}
-                </p>
+                <p><strong>Specialization:</strong>
+                    ${escapeHTML(trainer.specialization)}</p>
 
                 <br>
 
-                <button
-                    class="delete-btn"
+                <button class="delete-btn"
                     onclick="deleteTrainer(${index})">
                     Delete
                 </button>
-
             </div>
         `;
     });
 }
 
-
-// Delete trainer
-
 function deleteTrainer(index) {
+    if (!trainers[index]) return;
 
     if (confirm("Are you sure you want to delete this trainer?")) {
-
         trainers.splice(index, 1);
 
+        saveData("gym_trainers", trainers);
         displayTrainers();
         updateDashboard();
     }
@@ -230,21 +223,21 @@ function deleteTrainer(index) {
 // ==============================
 
 function updateDashboard() {
-
     document.getElementById("totalMembers").textContent =
         members.length;
 
-    const activeCount =
-        members.filter(member => member.active).length;
-
     document.getElementById("activeMembers").textContent =
-        activeCount;
+        members.filter(member => member.active).length;
 
     document.getElementById("totalTrainers").textContent =
         trainers.length;
 }
 
 
-// Initial dashboard
+// ==============================
+// INITIALIZE APPLICATION
+// ==============================
 
+displayMembers();
+displayTrainers();
 updateDashboard();
