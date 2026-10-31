@@ -1035,10 +1035,20 @@ function bookTrainingSession() {
         startDateTime.getTime() + duration * 60000
     );
 
-    if (Number.isNaN(startDateTime.getTime())) {
-        alert("Invalid session date or time.");
-        return;
-    }
+    const [year, month, day] = date.split("-").map(Number);
+
+const calendarDate = new Date(year, month - 1, day);
+
+const validDate =
+    /^\d{4}-\d{2}-\d{2}$/.test(date) &&
+    calendarDate.getFullYear() === year &&
+    calendarDate.getMonth() === month - 1 &&
+    calendarDate.getDate() === day;
+
+if (!validDate || Number.isNaN(startDateTime.getTime())) {
+    alert("Invalid session date or time.");
+    return;
+}
 
     if (startDateTime <= new Date()) {
         alert("You cannot book a session in the past.");
@@ -1990,6 +2000,264 @@ function exportGymReport() {
 
     URL.revokeObjectURL(url);
 }
+// ==============================
+// DEFAULT DEMO DATA
+// ==============================
+
+const demoDataAlreadyExists =
+    members.length > 0 ||
+    trainers.length > 0 ||
+    workoutPlans.length > 0 ||
+    trainingSessions.length > 0 ||
+    payments.length > 0;
+
+if (!demoDataAlreadyExists && typeof __TEST__ === "undefined") {
+    const today = new Date();
+
+    const dateOffset = (days) => {
+        const date = new Date(today);
+        date.setDate(date.getDate() + days);
+        return date.toISOString().split("T")[0];
+    };
+
+    const dateISO = (days) => {
+        const date = new Date(today);
+        date.setDate(date.getDate() + days);
+        return date.toISOString();
+    };
+
+    // MEMBERS
+    members = [
+        {
+            id: "M001",
+            name: "Arjun Patel",
+            membershipType: "Monthly",
+            active: true,
+            joinedOn: dateISO(-20),
+            startDate: dateISO(-20),
+            expiryDate: dateISO(10)
+        },
+        {
+            id: "M002",
+            name: "Priya Shah",
+            membershipType: "Quarterly",
+            active: true,
+            joinedOn: dateISO(-50),
+            startDate: dateISO(-50),
+            expiryDate: dateISO(40)
+        },
+        {
+            id: "M003",
+            name: "Rahul Mehta",
+            membershipType: "Yearly",
+            active: true,
+            joinedOn: dateISO(-100),
+            startDate: dateISO(-100),
+            expiryDate: dateISO(265)
+        },
+        {
+            id: "M004",
+            name: "Neha Desai",
+            membershipType: "Half-Yearly",
+            active: false,
+            joinedOn: dateISO(-200),
+            startDate: dateISO(-200),
+            expiryDate: dateISO(-20)
+        },
+        {
+            id: "M005",
+            name: "Karan Joshi",
+            membershipType: "Monthly",
+            active: true,
+            joinedOn: dateISO(-5),
+            startDate: dateISO(-5),
+            expiryDate: dateISO(25)
+        }
+    ];
+
+    // TRAINERS
+    trainers = [
+        {
+            id: "T001",
+            name: "Alex Johnson",
+            specialization: "Strength Training",
+            phone: "9876543210",
+            experience: 5,
+            assignedMembers: ["M001", "M002"]
+        },
+        {
+            id: "T002",
+            name: "Sarah Williams",
+            specialization: "Weight Loss",
+            phone: "9876543211",
+            experience: 4,
+            assignedMembers: ["M003", "M005"]
+        },
+        {
+            id: "T003",
+            name: "David Miller",
+            specialization: "Cardio",
+            phone: "9876543212",
+            experience: 7,
+            assignedMembers: ["M004"]
+        }
+    ];
+
+    // WORKOUT PLANS
+    workoutPlans = [
+        {
+            id: "WP001",
+            name: "Beginner Strength Plan",
+            level: "Beginner",
+            duration: 4,
+            exercises: [
+                { name: "Push Ups", sets: 3, reps: 12, rest: 60 },
+                { name: "Squats", sets: 3, reps: 15, rest: 60 },
+                { name: "Plank", sets: 3, reps: 30, rest: 45 }
+            ],
+            createdOn: dateISO(-15)
+        },
+        {
+            id: "WP002",
+            name: "Muscle Building Plan",
+            level: "Intermediate",
+            duration: 8,
+            exercises: [
+                { name: "Bench Press", sets: 4, reps: 10, rest: 90 },
+                { name: "Lat Pulldown", sets: 3, reps: 12, rest: 60 },
+                { name: "Dumbbell Rows", sets: 3, reps: 12, rest: 60 }
+            ],
+            createdOn: dateISO(-10)
+        },
+        {
+            id: "WP003",
+            name: "Advanced Fitness Plan",
+            level: "Advanced",
+            duration: 12,
+            exercises: [
+                { name: "Deadlift", sets: 4, reps: 8, rest: 120 },
+                { name: "Shoulder Press", sets: 4, reps: 10, rest: 90 },
+                { name: "Pull Ups", sets: 3, reps: 10, rest: 90 }
+            ],
+            createdOn: dateISO(-5)
+        }
+    ];
+
+    // TRAINING SESSIONS
+    trainingSessions = [
+        {
+            id: "TS001",
+            memberId: "M001",
+            trainerId: "T001",
+            date: dateOffset(1),
+            time: "10:00",
+            duration: 60,
+            status: "Scheduled"
+        },
+        {
+            id: "TS002",
+            memberId: "M002",
+            trainerId: "T001",
+            date: dateOffset(2),
+            time: "11:00",
+            duration: 45,
+            status: "Scheduled"
+        },
+        {
+            id: "TS003",
+            memberId: "M003",
+            trainerId: "T002",
+            date: dateOffset(-2),
+            time: "09:00",
+            duration: 60,
+            status: "Completed"
+        },
+        {
+            id: "TS004",
+            memberId: "M005",
+            trainerId: "T002",
+            date: dateOffset(3),
+            time: "17:00",
+            duration: 45,
+            status: "Scheduled"
+        }
+    ];
+
+    // PAYMENTS
+    payments = [
+        {
+            id: "PAY001",
+            receiptId: "RCP001",
+            memberId: "M001",
+            memberName: "Arjun Patel",
+            amount: 1000,
+            method: "UPI",
+            date: dateOffset(-15),
+            notes: "Monthly membership",
+            status: "Paid",
+            createdOn: dateISO(-15)
+        },
+        {
+            id: "PAY002",
+            receiptId: "RCP002",
+            memberId: "M002",
+            memberName: "Priya Shah",
+            amount: 2700,
+            method: "Card",
+            date: dateOffset(-40),
+            notes: "Quarterly membership",
+            status: "Paid",
+            createdOn: dateISO(-40)
+        },
+        {
+            id: "PAY003",
+            receiptId: "RCP003",
+            memberId: "M003",
+            memberName: "Rahul Mehta",
+            amount: 9000,
+            method: "Cash",
+            date: dateOffset(-90),
+            notes: "Yearly membership",
+            status: "Paid",
+            createdOn: dateISO(-90)
+        },
+        {
+            id: "PAY004",
+            receiptId: "RCP004",
+            memberId: "M004",
+            memberName: "Neha Desai",
+            amount: 5000,
+            method: "UPI",
+            date: dateOffset(-200),
+            notes: "Half-yearly membership",
+            status: "Paid",
+            createdOn: dateISO(-200)
+        },
+        {
+            id: "PAY005",
+            receiptId: "RCP005",
+            memberId: "M005",
+            memberName: "Karan Joshi",
+            amount: 1000,
+            method: "Card",
+            date: dateOffset(-3),
+            notes: "Monthly membership",
+            status: "Paid",
+            createdOn: dateISO(-3)
+        }
+    ];
+
+    // SAVE ALL DEMO DATA
+    saveData("gym_members", members);
+    saveData("gym_trainers", trainers);
+    saveData("gym_workout_plans", workoutPlans);
+    saveData("gym_training_sessions", trainingSessions);
+    saveData("gym_payments", payments);
+
+    console.log("Default demo data loaded successfully.");
+}
+
+// Initial report setup
 
 // Initial report setup
 refreshReports();

@@ -19,21 +19,44 @@ function setupApp(confirmResult = true) {
         "trainerList",
         "totalMembers",
         "activeMembers",
-        "totalTrainers"
+        "totalTrainers",
+        "trainerPhone",
+        "trainerExperience",
+        "assignmentMember",
+        "assignmentTrainer",
+        "trainerTotalCount",
+        "assignedTrainerCount",
+        "assignedMemberCount",
+        "sessionMember",
+        "sessionTrainer",
+        "sessionDate",
+        "sessionTime",
+        "sessionDuration",
+        "sessionNotes",
+        "sessionForm",
+        "sessionsTable",
+        "totalSessions",
+        "scheduledSessions",
+        "completedSessions",
+        "cancelledSessions"
     ];
 
     ids.forEach(id => {
-        elements[id] = {
-            value: "",
-            innerHTML: "",
-            textContent: ""
-        };
+       elements[id] = {
+    value: "",
+    innerHTML: "",
+    textContent: "",
+    reset() {
+        this.value = "";
+    }
+};
     });
 
     const alerts = [];
     const confirmations = [];
 
     const context = {
+        __TEST__: true,
         document: {
             getElementById(id) {
                 return elements[id];
@@ -158,10 +181,67 @@ test("Should add a trainer successfully", () => {
     app.elements.trainerId.value = "T001";
     app.elements.trainerName.value = "Arjun";
     app.elements.specialization.value = "Strength Training";
+    app.elements.trainerPhone.value = "9876543210";
+    app.elements.trainerExperience.value = "3";
 
     vm.runInContext("addTrainer()", app.context);
 
     assert.equal(vm.runInContext("trainers.length", app.context), 1);
     assert.equal(vm.runInContext("trainers[0].name", app.context), "Arjun");
     assert.equal(app.elements.totalTrainers.textContent, 1);
+});
+// TEST 8: Reject trainer with invalid phone number
+test("Should reject trainer with invalid phone number", () => {
+    const app = setupApp();
+
+    app.elements.trainerId.value = "T002";
+    app.elements.trainerName.value = "Rahul";
+    app.elements.specialization.value = "Cardio";
+    app.elements.trainerPhone.value = "12345";
+    app.elements.trainerExperience.value = "3";
+
+    vm.runInContext("addTrainer()", app.context);
+
+    assert.equal(vm.runInContext("trainers.length", app.context), 0);
+    assert.equal(app.alerts.length, 1);
+});
+// TEST 9: Reject an impossible calendar date
+test("Should reject an invalid session date", () => {
+    const app = setupApp();
+
+    vm.runInContext(`
+        members.push({
+            id: "M100",
+            name: "Test Member",
+            active: true,
+            membershipType: "Yearly",
+            expiryDate: "2099-12-31T00:00:00.000Z"
+        });
+
+        trainers.push({
+            id: "T100",
+            name: "Test Trainer",
+            specialization: "Fitness",
+            assignedMembers: []
+        });
+    `, app.context);
+
+    app.elements.sessionMember.value = "M100";
+    app.elements.sessionTrainer.value = "T100";
+    app.elements.sessionDate.value = "2099-02-30";
+    app.elements.sessionTime.value = "10:00";
+    app.elements.sessionDuration.value = "60";
+    app.elements.sessionNotes.value = "";
+
+   const initialSessionCount = vm.runInContext(
+    "trainingSessions.length",
+    app.context
+);
+
+vm.runInContext("bookTrainingSession()", app.context);
+
+assert.equal(
+    vm.runInContext("trainingSessions.length", app.context),
+    initialSessionCount
+);
 });
