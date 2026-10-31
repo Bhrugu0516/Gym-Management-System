@@ -1,130 +1,979 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Gym Management System</title>
-
+    <title>FitTrack | Gym Management System</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
 
-    <header>
-        <h1>Gym Management System</h1>
-        <p>Manage members, trainers and memberships</p>
-    </header>
+<div class="app-layout">
 
-    <nav>
-        <a href="#dashboard">Dashboard</a>
-        <a href="#members">Members</a>
-        <a href="#trainers">Trainers</a>
-    </nav>
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">F</div>
+            <div>
+                <h2>FitTrack</h2>
+                <span>GYM MANAGEMENT</span>
+            </div>
+        </div>
 
-    <main>
+        <div class="nav-label">MAIN MENU</div>
+        <nav class="sidebar-nav">
+            <a href="#dashboard" class="nav-link active">▦ Dashboard</a>
+            <a href="#members" class="nav-link">♙ Members</a>
+            <a href="#trainers" class="nav-link">♟ Trainers</a>
+            <a href="#memberships" class="nav-link">▤ Memberships</a>
+            <a href="#workouts" class="nav-link">✦ Workouts</a>
+            <a href="#sessions" class="nav-link">◷ Training Sessions</a>
+            <a href="#payments" class="nav-link">₹ Payments</a>
+            <a href="#reports" class="nav-link">▥ Reports</a>
+        </nav>
 
-        <!-- Dashboard -->
-        <section id="dashboard" class="dashboard">
+        <div class="sidebar-bottom">
+            <div class="admin-avatar">A</div>
+            <div>
+                <strong>Administrator</strong>
+                <span>Gym Manager</span>
+            </div>
+        </div>
+    </aside>
 
-            <div class="card">
-                <h3>Total Members</h3>
-                <p id="totalMembers">0</p>
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <h1 id="pageTitle">Dashboard</h1>
+                <p id="pageSubtitle">Welcome back! Here's what's happening at your gym.</p>
+            </div>
+            <div class="topbar-right">
+                <span class="status-dot"></span>
+                <span>System Online</span>
+                <div class="profile-avatar">A</div>
+            </div>
+        </header>
+
+        <section id="dashboard" class="page-section">
+            <div class="section-heading">
+                <div>
+                    <h2>Overview</h2>
+                    <p>Your gym's performance at a glance.</p>
+                </div>
+                <span class="date-label" id="currentDate"></span>
             </div>
 
-            <div class="card">
-                <h3>Active Members</h3>
-                <p id="activeMembers">0</p>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">♙</div>
+                    <span>Total Members</span>
+                    <h2 id="totalMembers">0</h2>
+                    <small>Registered members</small>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green">✓</div>
+                    <span>Active Members</span>
+                    <h2 id="activeMembers">0</h2>
+                    <small>Currently active</small>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon purple">♟</div>
+                    <span>Total Trainers</span>
+                    <h2 id="totalTrainers">0</h2>
+                    <small>Available trainers</small>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon orange">₹</div>
+                    <span>Monthly Revenue</span>
+                    <h2 id="monthlyRevenue">₹0</h2>
+                    <small>Recorded payments</small>
+                </div>
             </div>
 
-            <div class="card">
-                <h3>Total Trainers</h3>
-                <p id="totalTrainers">0</p>
+            <div class="dashboard-grid">
+                <div class="panel chart-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h3>Revenue Overview</h3>
+                            <p>Monthly payment performance</p>
+                        </div>
+                    </div>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h3>Membership Status</h3>
+                            <p>Active vs inactive members</p>
+                        </div>
+                    </div>
+                    <canvas id="membershipChart"></canvas>
+                </div>
             </div>
 
+            <div class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <h3>Recent Members</h3>
+                        <p>Latest registered members</p>
+                    </div>
+                    <a href="#members" class="text-link">View all</a>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Member ID</th>
+                                <th>Name</th>
+                                <th>Membership</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentMembersTable">
+                            <tr><td colspan="4">No members registered yet.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </section>
 
-
-        <!-- Members -->
-        <section id="members">
-
-            <h2>Member Management</h2>
-
-            <div class="form-container">
-
-                <input
-                    type="text"
-                    id="memberId"
-                    placeholder="Member ID"
-                >
-
-                <input
-                    type="text"
-                    id="memberName"
-                    placeholder="Member Name"
-                >
-
-                <select id="membershipType">
-                    <option value="Monthly">Monthly</option>
-                    <option value="Quarterly">Quarterly</option>
-                    <option value="Yearly">Yearly</option>
-                </select>
-
-                <button onclick="addMember()">
-                    Add Member
-                </button>
-
+        <section id="members" class="page-section">
+            <div class="section-heading">
+                <div>
+                    <h2>Member Management</h2>
+                    <p>Register and manage gym members.</p>
+                </div>
             </div>
 
-            <div id="memberList"></div>
+            <div class="panel">
+                <h3>Add New Member</h3>
+                <form id="memberForm" onsubmit="event.preventDefault(); addMember();">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="memberId">Member ID</label>
+                            <input type="text" id="memberId" placeholder="e.g. M001" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="memberName">Full Name</label>
+                            <input type="text" id="memberName" placeholder="Enter member name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="membershipType">Membership Plan</label>
+                            <select id="membershipType">
+                                <option value="Monthly">Monthly</option>
+                                <option value="Quarterly">Quarterly</option>
+                                <option value="Half-Yearly">Half-Yearly</option>
+                                <option value="Yearly">Yearly</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="primary-btn">+ Add Member</button>
+                </form>
+            </div>
 
+            <div class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <h3>All Members</h3>
+                        <p>Manage registered members.</p>
+                    </div>
+                </div>
+                <div id="memberList" class="data-list"></div>
+            </div>
         </section>
 
-
-        <!-- Trainers -->
-        <section id="trainers">
-
+        
+<section id="trainers" class="page-section">
+    <div class="section-heading">
+        <div>
             <h2>Trainer Management</h2>
+            <p>Manage trainers and assign them to gym members.</p>
+        </div>
+    </div>
 
-            <div class="form-container">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue">♟</div>
+            <span>Total Trainers</span>
+            <h2 id="trainerTotalCount">0</h2>
+            <small>Registered trainers</small>
+        </div>
 
-                <input
-                    type="text"
-                    id="trainerId"
-                    placeholder="Trainer ID"
-                >
+        <div class="stat-card">
+            <div class="stat-icon green">✓</div>
+            <span>Assigned Trainers</span>
+            <h2 id="assignedTrainerCount">0</h2>
+            <small>Trainers with members</small>
+        </div>
 
-                <input
-                    type="text"
-                    id="trainerName"
-                    placeholder="Trainer Name"
-                >
+        <div class="stat-card">
+            <div class="stat-icon purple">♙</div>
+            <span>Assigned Members</span>
+            <h2 id="assignedMemberCount">0</h2>
+            <small>Members with trainers</small>
+        </div>
+    </div>
 
-                <input
-                    type="text"
-                    id="specialization"
-                    placeholder="Specialization"
-                >
+    <div class="panel">
+        <h3>Register New Trainer</h3>
 
-                <button onclick="addTrainer()">
-                    Add Trainer
-                </button>
+        <form id="trainerForm" onsubmit="event.preventDefault(); addTrainer();">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="trainerId">Trainer ID</label>
+                    <input type="text" id="trainerId"
+                        placeholder="e.g. T001" required>
+                </div>
 
+                <div class="form-group">
+                    <label for="trainerName">Full Name</label>
+                    <input type="text" id="trainerName"
+                        placeholder="Enter trainer name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="specialization">Specialization</label>
+                    <select id="specialization" required>
+                        <option value="">Select specialization</option>
+                        <option value="Strength Training">Strength Training</option>
+                        <option value="Weight Loss">Weight Loss</option>
+                        <option value="Cardio">Cardio</option>
+                        <option value="Yoga">Yoga</option>
+                        <option value="CrossFit">CrossFit</option>
+                        <option value="General Fitness">General Fitness</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="trainerPhone">Phone Number</label>
+                    <input type="tel" id="trainerPhone"
+                        placeholder="10-digit phone number"
+                        pattern="[0-9]{10}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="trainerExperience">Experience (Years)</label>
+                    <input type="number" id="trainerExperience"
+                        min="0" max="50" placeholder="e.g. 3" required>
+                </div>
             </div>
 
-            <div id="trainerList"></div>
+            <button type="submit" class="primary-btn">+ Register Trainer</button>
+        </form>
+    </div>
 
-        </section>
+    <div class="panel">
+        <div class="panel-heading">
+            <div>
+                <h3>Assign Trainer to Member</h3>
+                <p>Connect a trainer with a registered gym member.</p>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="assignmentMember">Select Member</label>
+                <select id="assignmentMember">
+                    <option value="">Select member</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="assignmentTrainer">Select Trainer</label>
+                <select id="assignmentTrainer">
+                    <option value="">Select trainer</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="button" class="primary-btn"
+            onclick="assignTrainerToMember()">
+            Assign Trainer
+        </button>
+    </div>
+
+    <div class="panel">
+        <div class="panel-heading">
+            <div>
+                <h3>All Trainers</h3>
+                <p>Trainer profiles and assigned members.</p>
+            </div>
+        </div>
+
+        <div id="trainerList" class="data-list"></div>
+    </div>
+</section>
+
+
+        
+<section id="memberships" class="page-section">
+    <div class="section-heading">
+        <div>
+            <h2>Membership Plans</h2>
+            <p>Manage gym subscriptions, pricing and renewals.</p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue">▤</div>
+            <span>Total Subscriptions</span>
+            <h2 id="totalSubscriptions">0</h2>
+            <small>All member plans</small>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon green">✓</div>
+            <span>Active Subscriptions</span>
+            <h2 id="activeSubscriptions">0</h2>
+            <small>Currently valid</small>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon orange">◷</div>
+            <span>Expiring Soon</span>
+            <h2 id="expiringSubscriptions">0</h2>
+            <small>Within 7 days</small>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon purple">!</div>
+            <span>Expired Plans</span>
+            <h2 id="expiredSubscriptions">0</h2>
+            <small>Require renewal</small>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-heading">
+            <div>
+                <h3>Available Plans</h3>
+                <p>Gym membership pricing</p>
+            </div>
+        </div>
+
+        <div class="plan-grid">
+            <div class="plan-card">
+                <h3>Monthly</h3>
+                <h2>₹1,000</h2>
+                <p>1 month access</p>
+            </div>
+
+            <div class="plan-card featured-plan">
+                <span class="popular-label">POPULAR</span>
+                <h3>Quarterly</h3>
+                <h2>₹2,700</h2>
+                <p>3 months access</p>
+            </div>
+
+            <div class="plan-card">
+                <h3>Half-Yearly</h3>
+                <h2>₹5,000</h2>
+                <p>6 months access</p>
+            </div>
+
+            <div class="plan-card">
+                <h3>Yearly</h3>
+                <h2>₹9,000</h2>
+                <p>12 months access</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-heading">
+            <div>
+                <h3>Member Subscriptions</h3>
+                <p>View and renew membership plans.</p>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Member ID</th>
+                        <th>Name</th>
+                        <th>Plan</th>
+                        <th>Start Date</th>
+                        <th>Expiry Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="subscriptionsTable">
+                    <tr>
+                        <td colspan="7">No subscriptions available.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+
+        
+<section id="workouts" class="page-section">
+    <div class="section-heading">
+        <div>
+            <h2>Workout Management</h2>
+            <p>Create workout plans and assign them to gym members.</p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue">✦</div>
+            <span>Total Workout Plans</span>
+            <h2 id="totalWorkoutPlans">0</h2>
+            <small>Created plans</small>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon green">✓</div>
+            <span>Assigned Workouts</span>
+            <h2 id="assignedWorkoutCount">0</h2>
+            <small>Member assignments</small>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon purple">♙</div>
+            <span>Members With Plans</span>
+            <h2 id="membersWithWorkouts">0</h2>
+            <small>Members following plans</small>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h3>Create Workout Plan</h3>
+        <p class="form-description">
+            Enter the plan details and add exercises.
+        </p>
+
+        <form id="workoutForm" onsubmit="event.preventDefault(); createWorkoutPlan();">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="workoutName">Workout Plan Name</label>
+                    <input type="text" id="workoutName"
+                        placeholder="e.g. Beginner Strength Plan" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="workoutLevel">Difficulty Level</label>
+                    <select id="workoutLevel" required>
+                        <option value="">Select level</option>
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="workoutDuration">Duration (Weeks)</label>
+                    <input type="number" id="workoutDuration"
+                        min="1" max="52" placeholder="e.g. 4" required>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Add Exercise</h3>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="exerciseName">Exercise Name</label>
+                    <input type="text" id="exerciseName"
+                        placeholder="e.g. Bench Press">
+                </div>
+
+                <div class="form-group">
+                    <label for="exerciseSets">Sets</label>
+                    <input type="number" id="exerciseSets"
+                        min="1" max="20" placeholder="e.g. 3">
+                </div>
+
+                <div class="form-group">
+                    <label for="exerciseReps">Reps</label>
+                    <input type="number" id="exerciseReps"
+                        min="1" max="100" placeholder="e.g. 12">
+                </div>
+
+                <div class="form-group">
+                    <label for="exerciseRest">Rest (Seconds)</label>
+                    <input type="number" id="exerciseRest"
+                        min="0" max="600" placeholder="e.g. 60">
+                </div>
+            </div>
+
+            <button type="button" class="secondary-btn"
+                onclick="addExerciseToDraft()">
+                + Add Exercise
+            </button>
+
+            <div id="exerciseDraftList" class="exercise-draft-list">
+                No exercises added yet.
+            </div>
+
+            <button type="submit" class="primary-btn">
+                Create Workout Plan
+            </button>
+        </form>
+    </div>
+
+    <div class="panel">
+        <div class="panel-heading">
+            <div>
+                <h3>Assign Workout Plan</h3>
+                <p>Assign a created plan to a gym member.</p>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="workoutMember">Select Member</label>
+                <select id="workoutMember">
+                    <option value="">Select member</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="workoutPlanSelect">Select Workout Plan</label>
+                <select id="workoutPlanSelect">
+                    <option value="">Select plan</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="button" class="primary-btn"
+            onclick="assignWorkoutPlan()">
+            Assign Workout
+        </button>
+    </div>
+
+    <div class="panel">
+        <div class="panel-heading">
+            <div>
+                <h3>Available Workout Plans</h3>
+                <p>All created workout plans and exercises.</p>
+            </div>
+        </div>
+
+        <div id="workoutPlanList" class="data-list"></div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-heading">
+            <div>
+                <h3>Member Workout Assignments</h3>
+                <p>View plans assigned to each member.</p>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Member ID</th>
+                        <th>Member Name</th>
+                        <th>Workout Plan</th>
+                        <th>Difficulty</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="workoutAssignmentsTable">
+                    <tr>
+                        <td colspan="5">No workout assignments yet.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+
+        
+<section id="sessions" class="page-section">
+    <div class="section-heading">
+        <div>
+            <h2>Training Sessions</h2>
+            <p>Schedule and manage personal training sessions.</p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue">◷</div>
+            <span>Total Sessions</span>
+            <h2 id="totalSessions">0</h2>
+            <small>All bookings</small>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon green">✓</div>
+            <span>Scheduled</span>
+            <h2 id="scheduledSessions">0</h2>
+            <small>Upcoming sessions</small>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon purple">♟</div>
+            <span>Completed</span>
+            <h2 id="completedSessions">0</h2>
+            <small>Finished sessions</small>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon orange">✕</div>
+            <span>Cancelled</span>
+            <h2 id="cancelledSessions">0</h2>
+            <small>Cancelled bookings</small>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h3>Book Training Session</h3>
+        <p class="form-description">
+            Select a member, trainer and preferred schedule.
+        </p>
+
+        <form id="sessionForm" onsubmit="event.preventDefault(); bookTrainingSession();">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="sessionMember">Select Member</label>
+                    <select id="sessionMember" required>
+                        <option value="">Select member</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="sessionTrainer">Select Trainer</label>
+                    <select id="sessionTrainer" required>
+                        <option value="">Select trainer</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="sessionDate">Session Date</label>
+                    <input type="date" id="sessionDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="sessionTime">Start Time</label>
+                    <input type="time" id="sessionTime" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="sessionDuration">Duration</label>
+                    <select id="sessionDuration" required>
+                        <option value="30">30 minutes</option>
+                        <option value="45">45 minutes</option>
+                        <option value="60" selected>60 minutes</option>
+                        <option value="90">90 minutes</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="sessionNotes">Notes (Optional)</label>
+                    <input type="text" id="sessionNotes"
+                        placeholder="e.g. Upper body training">
+                </div>
+            </div>
+
+            <button type="submit" class="primary-btn">
+                + Book Session
+            </button>
+        </form>
+    </div>
+
+    <div class="panel">
+        <div class="panel-heading">
+            <div>
+                <h3>Training Schedule</h3>
+                <p>View and manage all training bookings.</p>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Trainer</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="sessionsTable">
+                    <tr>
+                        <td colspan="7">No training sessions booked yet.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+
+        
+<section id="payments" class="page-section">
+    <div class="section-heading">
+        <div>
+            <h2>Payment Management</h2>
+            <p>Record payments and track gym revenue.</p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue">₹</div>
+            <span>Total Revenue</span>
+            <h2 id="totalRevenue">₹0</h2>
+            <small>All recorded payments</small>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon green">✓</div>
+            <span>This Month</span>
+            <h2 id="monthlyRevenue">₹0</h2>
+            <small>Current month revenue</small>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon purple">▤</div>
+            <span>Total Transactions</span>
+            <h2 id="totalTransactions">0</h2>
+            <small>Recorded payments</small>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon orange">₹</div>
+            <span>Average Payment</span>
+            <h2 id="averagePayment">₹0</h2>
+            <small>Per transaction</small>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h3>Record New Payment</h3>
+        <p class="form-description">
+            Record a member's payment in the gym system.
+        </p>
+
+        <form id="paymentForm" onsubmit="event.preventDefault(); recordPayment();">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="paymentMember">Select Member</label>
+                    <select id="paymentMember" required>
+                        <option value="">Select member</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentAmount">Amount (₹)</label>
+                    <input type="number" id="paymentAmount"
+                        min="1" max="1000000" step="0.01"
+                        placeholder="e.g. 1000" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentMethod">Payment Method</label>
+                    <select id="paymentMethod" required>
+                        <option value="">Select method</option>
+                        <option value="Cash">Cash</option>
+                        <option value="UPI">UPI</option>
+                        <option value="Card">Debit/Credit Card</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentDate">Payment Date</label>
+                    <input type="date" id="paymentDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentNotes">Notes (Optional)</label>
+                    <input type="text" id="paymentNotes"
+                        placeholder="e.g. Monthly membership fee">
+                </div>
+            </div>
+
+            <button type="submit" class="primary-btn">
+                + Record Payment
+            </button>
+        </form>
+    </div>
+
+    <div class="panel">
+        <div class="panel-heading">
+            <div>
+                <h3>Payment History</h3>
+                <p>View and manage recorded transactions.</p>
+            </div>
+        </div>
+
+        <div class="payment-filters">
+            <div class="form-group">
+                <label for="paymentSearch">Search Member</label>
+                <input type="text" id="paymentSearch"
+                    placeholder="Search by name or member ID"
+                    oninput="displayPayments()">
+            </div>
+
+            <div class="form-group">
+                <label for="paymentFilterMethod">Payment Method</label>
+                <select id="paymentFilterMethod"
+                    onchange="displayPayments()">
+                    <option value="">All methods</option>
+                    <option value="Cash">Cash</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Card">Debit/Credit Card</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Receipt ID</th>
+                        <th>Member</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Notes</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentsTable">
+                    <tr>
+                        <td colspan="7">No payments recorded yet.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+
+        
+<section id="reports" class="page-section">
+    <div class="section-heading">
+        <div>
+            <h2>Reports & Analytics</h2>
+            <p>Analyze gym performance, revenue and membership activity.</p>
+        </div>
+
+        <button type="button" class="primary-btn"
+            onclick="exportGymReport()">
+            ↓ Export CSV Report
+        </button>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue">♙</div>
+            <span>Total Members</span>
+            <h2 id="reportTotalMembers">0</h2>
+            <small>Registered members</small>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon green">✓</div>
+            <span>Active Members</span>
+            <h2 id="reportActiveMembers">0</h2>
+            <small>Currently active</small>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon purple">₹</div>
+            <span>Total Revenue</span>
+            <h2 id="reportRevenue">₹0</h2>
+            <small>Recorded payments</small>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon orange">◷</div>
+            <span>Total Sessions</span>
+            <h2 id="reportSessions">0</h2>
+            <small>All training bookings</small>
+        </div>
+    </div>
+
+    <div class="report-grid">
+        <div class="panel">
+            <h3>Monthly Revenue</h3>
+            <p class="form-description">
+                Revenue collected during each month.
+            </p>
+            <div class="report-chart">
+                <canvas id="reportRevenueChart"></canvas>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>Membership Distribution</h3>
+            <p class="form-description">
+                Members grouped by membership plan.
+            </p>
+            <div class="report-chart">
+                <canvas id="reportMembershipChart"></canvas>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>Payment Method Breakdown</h3>
+            <p class="form-description">
+                Distribution of recorded payment methods.
+            </p>
+            <div class="report-chart">
+                <canvas id="reportPaymentChart"></canvas>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>Trainer Performance</h3>
+            <p class="form-description">
+                Assigned members and completed sessions.
+            </p>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Trainer</th>
+                            <th>Assigned Members</th>
+                            <th>Completed Sessions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trainerPerformanceTable">
+                        <tr>
+                            <td colspan="3">No trainer data available.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+        <footer>
+            FitTrack Gym Management System · Academic Project
+        </footer>
 
     </main>
+</div>
 
-
-    <footer>
-        <p>Gym Management System | Lab Session 06</p>
-    </footer>
-
-
-    <script src="script.js"></script>
-
+<script src="script.js"></script>
+<script src="dashboard.js"></script>
 </body>
 </html>
