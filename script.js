@@ -390,6 +390,8 @@ function updateDashboard() {
 
     document.getElementById("totalTrainers").textContent =
         trainers.length;
+
+    
 }
 
 
@@ -1274,6 +1276,27 @@ displayTrainingSessions();
 // ==============================
 
 let payments = loadData("gym_payments");
+function updateDashboardRevenue() {
+    const now = new Date();
+
+    const monthlyRevenue = payments
+        .filter(payment => {
+            const [year, month] = payment.date.split("-").map(Number);
+
+            return year === now.getFullYear() &&
+                month === now.getMonth() + 1;
+        })
+        .reduce((sum, payment) =>
+            sum + Number(payment.amount || 0), 0
+        );
+
+    const revenueElement =
+        document.getElementById("dashboardMonthlyRevenue");
+
+    if (revenueElement) {
+        revenueElement.textContent = formatCurrency(monthlyRevenue);
+    }
+}
 
 // Populate the member dropdown
 function updatePaymentOptions() {
@@ -1429,6 +1452,7 @@ if (isMembershipPayment) {
 
     displayPayments();
     updatePaymentStats();
+    updateDashboardRevenue();
 
     alert("Payment recorded successfully.");
 }
@@ -1528,7 +1552,7 @@ function displayPayments() {
 // Calculate revenue statistics
 function updatePaymentStats() {
     const totalElement = document.getElementById("totalRevenue");
-    const monthlyElement = document.getElementById("monthlyRevenue");
+    const monthlyElement = document.getElementById("paymentMonthlyRevenue");
     const transactionsElement = document.getElementById("totalTransactions");
     const averageElement = document.getElementById("averagePayment");
 
@@ -1730,6 +1754,67 @@ updatePaymentStats();
 
 let reportRevenueChart = null;
 let reportMembershipChart = null;
+let dashboardRevenueChart = null;
+let dashboardMembershipChart = null;
+function createDashboardCharts() {
+    if (typeof Chart === "undefined") {
+        console.error("Chart.js is not loaded.");
+        return;
+    }
+
+    const revenueCanvas = document.getElementById("revenueChart");
+    if (!revenueCanvas) return;
+
+    // Monthly revenue data
+    const monthLabels = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+
+    const monthlyRevenue = Array(12).fill(0);
+    const currentYear = new Date().getFullYear();
+
+    payments.forEach(payment => {
+        const [year, month] = payment.date.split("-").map(Number);
+
+        if (year === currentYear && month >= 1 && month <= 12) {
+            monthlyRevenue[month - 1] += Number(payment.amount || 0);
+        }
+    });
+
+    if (dashboardRevenueChart) {
+        dashboardRevenueChart.destroy();
+    }
+
+    dashboardRevenueChart = new Chart(revenueCanvas, {
+        type: "bar",
+        data: {
+            labels: monthLabels,
+            datasets: [{
+                label: "Revenue (₹)",
+                data: monthlyRevenue,
+                backgroundColor: "#4f6ee8",
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => "₹" + value
+                    }
+                }
+            }
+        }
+    });
+
+}
 let reportPaymentChart = null;
 
 // Safely prepare CSV values
@@ -2257,8 +2342,22 @@ if (!demoDataAlreadyExists && typeof __TEST__ === "undefined") {
     console.log("Default demo data loaded successfully.");
 }
 
-// Initial report setup
+// Refresh all UI components after demo data initialization
+displayMembers();
+displayTrainers();
+updateDashboard();
+updateDashboardRevenue();
 
-// Initial report setup
+displaySubscriptions();
+displayWorkoutPlans();
+
+updateSessionOptions();
+displayTrainingSessions();
+
+updatePaymentOptions();
+displayPayments();
+updatePaymentStats();
+
+// Initialize reports and charts
 refreshReports();
-
+createDashboardCharts();
